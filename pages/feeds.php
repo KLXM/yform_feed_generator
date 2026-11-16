@@ -182,20 +182,21 @@ if ('add' === $func || 'edit' === $func) {
         foreach (Feed::OPERATORS as $op => $label) {
             $ops .= '<option value="' . $op . '"' . ($op === $f['op'] ? ' selected' : '') . '>' . rex_escape($label) . '</option>';
         }
-        $options = '';
+        $checks = '';
         $info = '' !== $f['field'] && Schema::isTable($values['table_name']) ? Schema::field($values['table_name'], $f['field']) : null;
         $isRelation = null !== $info && null !== $info['relation'];
         if ($isRelation) {
             foreach (Schema::relationOptions($values['table_name'], $f['field']) as $o) {
-                $options .= '<option value="' . $o['id'] . '"' . (in_array($o['id'], $f['values'], true) ? ' selected' : '') . '>' . rex_escape($o['label']) . '</option>';
+                $checks .= '<label class="yfg-check"><input type="checkbox" name="feed[config][filters][' . $i . '][values][]" value="' . $o['id'] . '"' . (in_array($o['id'], $f['values'], true) ? ' checked' : '') . '> ' . rex_escape($o['label']) . '</label>';
             }
         }
         $n = rex_escape((string) $i);
         return '<tr class="yfg-filter">'
             . '<td><label class="sr-only" for="yfg-f-' . $n . '-field">Feld</label>' . $fieldSelect('feed[config][filters][' . $i . '][field]', $f['field'], $fields, 'yfg-f-' . $n . '-field', true, '– Feld wählen –') . '</td>'
             . '<td><label class="sr-only" for="yfg-f-' . $n . '-op">Bedingung</label><select class="form-control yfg-op" id="yfg-f-' . $n . '-op" name="feed[config][filters][' . $i . '][op]">' . $ops . '</select></td>'
-            . '<td><label class="sr-only" for="yfg-f-' . $n . '-value">Wert</label><input class="form-control yfg-value" id="yfg-f-' . $n . '-value" name="feed[config][filters][' . $i . '][value]" value="' . rex_escape($f['value']) . '"' . ($isRelation ? ' hidden' : '') . '>'
-            . '<label class="sr-only" for="yfg-f-' . $n . '-values">Werte</label><select multiple size="5" class="form-control yfg-values" id="yfg-f-' . $n . '-values" name="feed[config][filters][' . $i . '][values][]"' . ($isRelation ? '' : ' hidden') . '>' . $options . '</select></td>'
+            . '<td><label class="sr-only" for="yfg-f-' . $n . '-value">Wert</label><input class="form-control yfg-value" id="yfg-f-' . $n . '-value" name="feed[config][filters][' . $i . '][value]" value="' . rex_escape($f['value']) . '"' . ($isRelation || '' === $f['field'] ? ' hidden' : '') . '>'
+            . '<fieldset class="yfg-values"' . ($isRelation ? '' : ' hidden') . '><legend class="sr-only">Werte auswählen</legend><div class="yfg-checks">' . $checks . '</div></fieldset>'
+            . '<p class="yfg-hint help-block"' . ('' === $f['field'] ? '' : ' hidden') . '>Zuerst links ein Feld wählen. Bei Relationsfeldern (z. B. Kategorie) erscheinen hier die Werte zum Ankreuzen.</p></td>'
             . '<td><button type="button" class="btn btn-delete yfg-remove">Entfernen</button></td></tr>';
     };
     foreach ($filterRows as $i => $f) {

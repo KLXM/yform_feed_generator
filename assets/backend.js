@@ -83,7 +83,7 @@
                     // Werte der vorherigen Tabelle verwerfen und für die neue laden
                     tbody.querySelectorAll('tr').forEach(function (row) {
                         if (!firstLoad) {
-                            row.querySelector('.yfg-values').innerHTML = '';
+                            row.querySelector('.yfg-checks').innerHTML = '';
                         }
                         updateFilterRow(row, !firstLoad);
                     });
@@ -99,34 +99,48 @@
             var fieldSelect = row.querySelector('select.yfg-field');
             var op = row.querySelector('.yfg-op').value;
             var valueInput = row.querySelector('.yfg-value');
-            var valuesSelect = row.querySelector('.yfg-values');
+            var box = row.querySelector('.yfg-values');
+            var checks = row.querySelector('.yfg-checks');
+            var hint = row.querySelector('.yfg-hint');
             var info = fieldByName(fieldSelect.value);
             var isRelation = !!(info && info.relation);
             var needsValue = op !== 'empty' && op !== 'notempty';
             var useList = isRelation && ['any', 'all', 'none'].indexOf(op) > -1;
 
-            valueInput.hidden = !needsValue || useList;
-            valuesSelect.hidden = !needsValue || !useList;
+            hint.hidden = fieldSelect.value !== '';
+            valueInput.hidden = !fieldSelect.value || !needsValue || useList;
+            box.hidden = !needsValue || !useList;
 
-            if (useList && (reloadOptions || valuesSelect.options.length === 0)) {
+            if (useList && (reloadOptions || checks.children.length === 0)) {
                 if (!info.relation.supported) {
-                    valuesSelect.innerHTML = '';
-                    status.textContent = 'Diese Relationsart (1:n inline) wird für Filter nicht unterstützt.';
+                    checks.innerHTML = '<p class="help-block">Diese Relationsart (1:n inline) wird für Filter nicht unterstützt.</p>';
                     return;
                 }
-                var selected = Array.prototype.map.call(valuesSelect.selectedOptions, function (o) { return o.value; });
+                var selected = Array.prototype.map.call(checks.querySelectorAll('input:checked'), function (o) { return o.value; });
+                var name = fieldSelect.name.replace(/\[field\]$/, '[values][]');
+                checks.textContent = 'Werte werden geladen …';
                 request({ action: 'options', table: tableSelect.value, field: info.name })
                     .then(function (data) {
-                        valuesSelect.innerHTML = '';
+                        checks.innerHTML = '';
                         data.options.forEach(function (o) {
-                            var opt = new Option(o.label, String(o.id));
-                            opt.selected = selected.indexOf(String(o.id)) > -1;
-                            valuesSelect.appendChild(opt);
+                            var label = document.createElement('label');
+                            label.className = 'yfg-check';
+                            var input = document.createElement('input');
+                            input.type = 'checkbox';
+                            input.name = name;
+                            input.value = String(o.id);
+                            input.checked = selected.indexOf(String(o.id)) > -1;
+                            label.appendChild(input);
+                            label.appendChild(document.createTextNode(' ' + o.label));
+                            checks.appendChild(label);
                         });
+                        if (!data.options.length) {
+                            checks.textContent = 'Keine Werte in der Zieltabelle.';
+                        }
                         status.textContent = data.options.length + ' Werte für „' + info.label + '“ geladen.';
                     })
                     .catch(function (e) {
-                        status.textContent = 'Werte konnten nicht geladen werden: ' + e.message;
+                        checks.textContent = 'Werte konnten nicht geladen werden: ' + e.message;
                     });
             }
         }
@@ -141,7 +155,7 @@
                 return;
             }
             if (event.target.classList.contains('yfg-field')) {
-                row.querySelector('.yfg-values').innerHTML = '';
+                row.querySelector('.yfg-checks').innerHTML = '';
                 updateFilterRow(row, true);
             } else if (event.target.classList.contains('yfg-op')) {
                 updateFilterRow(row, false);

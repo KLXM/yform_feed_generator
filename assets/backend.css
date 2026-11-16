@@ -1,6 +1,11 @@
 .yfg-form fieldset { margin-bottom: 24px; }
 .yfg-form legend { font-size: 16px; font-weight: 700; }
 .yfg-filters td { vertical-align: top !important; }
-.yfg-filters select[multiple] { min-width: 220px; }
+.yfg-form [hidden] { display: none !important; }
+.yfg-values { border: 0; margin: 0; padding: 0; min-width: 240px; }
+.yfg-checks { max-height: 220px; overflow-y: auto; }
+.yfg-check { display: block; font-weight: normal; margin: 0 0 4px; cursor: pointer; }
+.yfg-check input { margin-right: 6px; }
+.yfg-hint { margin: 0; }
 .yfg-thumb { height: 45px; width: auto; border-radius: 3px; }
 .yfg-loading { min-height: 1.4em; color: #555; }
