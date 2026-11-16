@@ -134,6 +134,8 @@ final class Delivery
 
         $etag = '"' . $data['etag'] . '"';
         $ttl = max(0, $feed->ttl);
+        // Der Feed braucht keine Sitzung; ein von anderen AddOns gesetztes Cookie würde Proxy-Caches ausschalten
+        header_remove('Set-Cookie');
         header('Content-Type: application/rss+xml; charset=utf-8');
         header('ETag: ' . $etag);
         header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $data['last']) . ' GMT');
@@ -142,7 +144,11 @@ final class Delivery
         header('X-Robots-Tag: noindex');
 
         $ifNoneMatch = (string) ($_SERVER['HTTP_IF_NONE_MATCH'] ?? '');
-        if ('' !== $ifNoneMatch && in_array($etag, array_map('trim', explode(',', $ifNoneMatch)), true)) {
+        $ifModifiedSince = strtotime((string) ($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '')) ?: 0;
+        $notModified = '' !== $ifNoneMatch
+            ? in_array($etag, array_map(static fn (string $e): string => trim(str_replace('W/', '', $e)), explode(',', $ifNoneMatch)), true)
+            : $ifModifiedSince > 0 && $data['last'] <= $ifModifiedSince;
+        if ($notModified) {
             http_response_code(304);
             exit;
         }
