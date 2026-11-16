@@ -1,0 +1,6 @@
+.yfg-form fieldset { margin-bottom: 24px; }
+.yfg-form legend { font-size: 16px; font-weight: 700; }
+.yfg-filters td { vertical-align: top !important; }
+.yfg-filters select[multiple] { min-width: 220px; }
+.yfg-thumb { height: 45px; width: auto; border-radius: 3px; }
+.yfg-loading { min-height: 1.4em; color: #555; }

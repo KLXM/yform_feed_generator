@@ -1,0 +1,44 @@
+package: yform_feed_generator
+version: '1.0.0-dev'
+author: 'KLXM Crossmedia GmbH'
+supportpage: 'https://github.com/KLXM/yform_feed_generator'
+description: 'Erzeugt RSS-2.0-Feeds aus YForm-Tabellen mit Feld-Mapping und Filtern'
+
+page:
+    title: 'translate:yform_feed_generator_title'
+    perm: yform_feed_generator[]
+    icon: rex-icon fa-rss
+    subpages:
+        feeds:
+            title: 'translate:yform_feed_generator_feeds'
+            icon: rex-icon fa-rss
+        settings:
+            title: 'translate:yform_feed_generator_settings'
+            icon: rex-icon fa-gear
+            perm: admin
+        help:
+            title: 'translate:yform_feed_generator_help'
+            icon: rex-icon fa-book
+            itemClass: pull-right
+
+perm:
+    yform_feed_generator[]: 'translate:yform_feed_generator_perm'
+
+requires:
+    redaxo: '^5.15.0'
+    php: '>=8.1'
+    packages:
+        yform: '>=4.0.0'
+        media_manager: '^2.13'
+
+conflicts:
+    packages:
+        url: '<2.0.0'
+
+default_config:
+    path_prefix: 'rss'
+    default_ttl: 600
+
+installer_ignore:
+    - .github
+    - .gitignore
